@@ -16,8 +16,16 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.Requ
     .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddControllersWithViews();
 
-// TODO Ajouter la configuration de SignalR
-// TODO Ajouter la configuration des CORS
+builder.Services.AddSignalR();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("CorsPolicy", builder => builder
+        .WithOrigins("http://localhost:4200", "https://localhost:4200")
+        .AllowAnyMethod()
+        .AllowAnyHeader()
+        .AllowCredentials());
+});
 
 builder.Services.AddScoped<TasksService>();
 
@@ -40,8 +48,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-// TODO ajouter l'utilisation de SignalR
-// TODO ajouter l'utilisation des CORS
+app.UseCors("CorsPolicy");
 
 app.UseAuthorization();
 
@@ -50,7 +57,7 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 app.MapRazorPages();
 
-
+app.MapHub<TaskHub>("/tasks");
 
 app.Run();
 
